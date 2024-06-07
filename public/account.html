@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Аккаунт</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Кино Статьи</h1>
+        <nav>
+            <a href="/">Главная</а>
+            <a href="/login.html">Войти</а>
+            <a href="/register.html">Регистрация</а>
+            <a href="/account.html">Аккаунт</а>
+        </nav>
+    </header>
+    <main>
+        <div id="userData"></div>
+        <h2>Сохраненные статьи</h2>
+        <div id="bookmarkedArticles"></div>
+    </main>
+    <script>
+        const token = localStorage.getItem('token');
+
+        if (!token) {
+            window.location.href = '/login.html';
+        } else {
+            fetch('/user', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                const userDataDiv = document.getElementById('userData');
+                userDataDiv.innerHTML = `<p>Email: ${data.email}</p><p>Роль: ${data.role}</p>`;
+            });
+
+            fetch('/bookmarks', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            .then(response => response.json())
+            .then(articles => {
+                const bookmarksDiv = document.getElementById('bookmarkedArticles');
+                bookmarksDiv.innerHTML = articles.map(article => `<p>${article.title}</p>`).join('');
+            });
+        }
+    </script>
+</body>
+</html>
