@@ -1,20 +1,27 @@
 name: Deploy to GitHub Pages
 
 on:
-  push:
+  push: # Запускать workflow при каждом push'e в репозиторий
     branches:
-      - main # замените на вашу основную ветку
+      - main # Ветка, из которой запускается workflow
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest # Использовать последнюю версию Ubuntu для выполнения задач
+
     steps:
-    - name: Checkout repository
+    - name: Checkout repository # Шаг для клонирования репозитория
       uses: actions/checkout@v2
 
-    - name: Deploy to GitHub Pages
-      uses: JamesIves/github-pages-deploy-action@releases/v3
-      with:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        BRANCH: gh-pages # создайте отдельную ветку для GitHub Pages
-        FOLDER: public # папка, содержащая файлы для развертывания
+    - name: Copy files to gh-pages branch # Копирование файлов в ветку gh-pages
+      run: |
+        git config --global user.name 'GitHub Actions'
+        git config --global user.email 'actions@github.com'
+        git checkout --orphan gh-pages # Создание или переключение на ветку gh-pages
+        git rm -rf . # Удаление всех файлов из ветки
+        cp -r public/. . # Копирование файлов из папки public в корень репозитория
+        git add --all # Добавление всех изменений в индекс
+        git commit -m "Deploy to gh-pages" # Фиксация изменений
+        git branch -D main # Удаление временной ветки main (если нужно)
+        git branch -m main # Переименование gh-pages в main (если нужно)
+        git push -f origin main # Отправка изменений на удаленный репозиторий
